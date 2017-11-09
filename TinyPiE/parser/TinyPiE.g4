@@ -21,5 +21,5 @@ ADDOP: '+'|'-';
 MULOP: '*'|'/';
 
 IDENTIFIER: 'x'|'y'|'z';
-VALUE: [0-9]+;
+VALUE: '0' | [1-9][0-9]+;
 WS: [ \t\r\n] -> skip;
