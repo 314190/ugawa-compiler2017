@@ -6,6 +6,7 @@ import parser.TinyPiEParser.AndExprContext;
 import parser.TinyPiEParser.ExprContext;
 import parser.TinyPiEParser.LiteralExprContext;
 import parser.TinyPiEParser.MulExprContext;
+import parser.TinyPiEParser.NotminusExprContext;
 import parser.TinyPiEParser.OrExprContext;
 import parser.TinyPiEParser.ParenExprContext;
 import parser.TinyPiEParser.VarExprContext;
@@ -49,10 +50,19 @@ public class ASTGenerator {
 			LiteralExprContext ctx = (LiteralExprContext) ctxx;
 			int value = Integer.parseInt(ctx.VALUE().getText());
 			return new ASTNumberNode(value);
+			
+		} else if (ctxx instanceof NotminusExprContext) {
+			NotminusExprContext ctx = (NotminusExprContext) ctxx;
+			String op = ctx.NOTMINUS().getText();
+			int operand = Integer.parseInt(ctx.NOTMINUS().getText());
+			return new ASTUnaryExprNode(op, operand);	
+			
+			
 		} else if (ctxx instanceof VarExprContext) {
 			VarExprContext ctx = (VarExprContext) ctxx;
 			String varName = ctx.IDENTIFIER().getText();
 			return new ASTVarRefNode(varName);
+			
 		} else if (ctxx instanceof ParenExprContext) {
 			ParenExprContext ctx = (ParenExprContext) ctxx;
 			return translateExpr(ctx.expr());

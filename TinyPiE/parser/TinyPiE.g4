@@ -22,7 +22,8 @@ mulExpr: mulExpr MULOP unaryExpr
 
 unaryExpr: VALUE			# literalExpr
 	| IDENTIFIER			# varExpr
-	| '(' expr ')'			# parenExpr
+	| NOTMINUS				# notminusExpr
+	| '(' expr ')'		# parenExpr
 	;
 
 ADDOP: '+'|'-';
@@ -31,5 +32,6 @@ ANDOP: '&';
 OROP: '|';
 
 IDENTIFIER: 'x'|'y'|'z';
-VALUE: [0-9] | [1-9][0-9]+;
+VALUE: [0-9]|[1-9][0-9]+;
+NOTMINUS: ('~'|'-')?[0-9]|('~'|'-')?[1-9][0-9]+;
 WS: [ \t\r\n] -> skip;
