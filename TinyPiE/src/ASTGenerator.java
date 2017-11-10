@@ -1,9 +1,12 @@
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import parser.TinyPiEParser;
 import parser.TinyPiEParser.AddExprContext;
+import parser.TinyPiEParser.AndExprContext;
 import parser.TinyPiEParser.ExprContext;
 import parser.TinyPiEParser.LiteralExprContext;
 import parser.TinyPiEParser.MulExprContext;
+import parser.TinyPiEParser.OrExprContext;
 import parser.TinyPiEParser.ParenExprContext;
 import parser.TinyPiEParser.VarExprContext;
 
@@ -11,7 +14,23 @@ public class ASTGenerator {
 	ASTNode translateExpr(ParseTree ctxx) {
 		if (ctxx instanceof ExprContext) {
 			ExprContext ctx = (ExprContext) ctxx;
-			return translateExpr(ctx.addExpr());
+			return translateExpr(ctx.orExpr());
+			
+		} else if (ctxx instanceof OrExprContext) {
+			OrExprContext ctx = (OrExprContext) ctxx;
+			if (ctx.orExpr() == null)
+				return translateExpr(ctx.andExpr());
+			ASTNode lhs = translateExpr(ctx.orExpr());
+			ASTNode rhs = translateExpr(ctx.andExpr());
+			return new ASTBinaryExprNode(ctx.OROP().getText(), lhs, rhs);
+		} else if (ctxx instanceof AndExprContext) {
+			AndExprContext ctx = (AndExprContext) ctxx;
+			if (ctx.andExpr() == null)
+				return translateExpr(ctx.addExpr());
+			ASTNode lhs = translateExpr(ctx.andExpr());
+			ASTNode rhs = translateExpr(ctx.addExpr());
+			return new ASTBinaryExprNode(ctx.ANDOP().getText(), lhs, rhs);
+			
 		} else if (ctxx instanceof AddExprContext) {
 			AddExprContext ctx = (AddExprContext) ctxx;
 			if (ctx.addExpr() == null)

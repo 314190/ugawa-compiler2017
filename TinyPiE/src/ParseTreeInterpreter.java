@@ -7,9 +7,11 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import parser.TinyPiELexer;
 import parser.TinyPiEParser;
 import parser.TinyPiEParser.AddExprContext;
+import parser.TinyPiEParser.AndExprContext;
 import parser.TinyPiEParser.ExprContext;
 import parser.TinyPiEParser.LiteralExprContext;
 import parser.TinyPiEParser.MulExprContext;
+import parser.TinyPiEParser.OrExprContext;
 import parser.TinyPiEParser.ParenExprContext;
 import parser.TinyPiEParser.VarExprContext;
 
@@ -17,7 +19,8 @@ public class ParseTreeInterpreter extends InterpreterBase {
 	int evalExpr(ParseTree ctxx, Environment env) {
 		if (ctxx instanceof ExprContext) {
 			ExprContext ctx = (ExprContext) ctxx;
-			return evalExpr(ctx.addExpr(), env);
+			return evalExpr(ctx.orExpr(), env);
+			
 		} else if (ctxx instanceof AddExprContext) {
 			AddExprContext ctx = (AddExprContext) ctxx;
 			if (ctx.addExpr() == null)
