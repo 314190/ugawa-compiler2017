@@ -1,12 +1,12 @@
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import parser.TinyPiEParser;
 import parser.TinyPiEParser.AddExprContext;
 import parser.TinyPiEParser.AndExprContext;
 import parser.TinyPiEParser.ExprContext;
 import parser.TinyPiEParser.LiteralExprContext;
+import parser.TinyPiEParser.MinusExprContext;
 import parser.TinyPiEParser.MulExprContext;
-import parser.TinyPiEParser.NotminusExprContext;
+import parser.TinyPiEParser.NotExprContext;
 import parser.TinyPiEParser.OrExprContext;
 import parser.TinyPiEParser.ParenExprContext;
 import parser.TinyPiEParser.VarExprContext;
@@ -46,16 +46,26 @@ public class ASTGenerator {
 			ASTNode lhs = translateExpr(ctx.mulExpr());
 			ASTNode rhs = translateExpr(ctx.unaryExpr());
 			return new ASTBinaryExprNode(ctx.MULOP().getText(), lhs, rhs);
+			
+			
+		} else if (ctxx instanceof NotExprContext) {
+			NotExprContext ctx = (NotExprContext) ctxx;
+			String op = ctx.NOTOP().getText();
+			ASTNode operand = translateExpr(ctx.unaryExpr());
+			return new ASTUnaryExprNode(op, operand);
+			
+		} else if (ctxx instanceof MinusExprContext) {
+			MinusExprContext ctx = (MinusExprContext) ctxx;		
+			String op = ctx.ADDOP().getText();
+			String[] opp = op.split("");
+			if (opp[0].equals("-")) {
+			ASTNode operand = translateExpr(ctx.unaryExpr());
+			return new ASTUnaryExprNode(op, operand);
+			}
 		} else if (ctxx instanceof LiteralExprContext) {
 			LiteralExprContext ctx = (LiteralExprContext) ctxx;
 			int value = Integer.parseInt(ctx.VALUE().getText());
 			return new ASTNumberNode(value);
-			
-		} else if (ctxx instanceof NotminusExprContext) {
-			NotminusExprContext ctx = (NotminusExprContext) ctxx;
-			String op = ctx.NOTMINUS().getText();
-			int operand = Integer.parseInt(ctx.NOTMINUS().getText());
-			return new ASTUnaryExprNode(op, operand);	
 			
 			
 		} else if (ctxx instanceof VarExprContext) {
