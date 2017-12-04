@@ -7,12 +7,15 @@ public class CompilerBase {
 	static final String REG_FP  = "r11";
 	static final String REG_SP  = "r13";
 	static final String REG_LR  = "r14";
-	
+
 	/* 組込み関数 */
 	static final String FUNCTION_PRINT = "__pi_runtime_print";
 
 	void emitI(String op, int imm) {
 		System.out.println("\t"+op+" #"+imm);
+	}
+	void emitR(String op, String operand) {
+		System.out.println("\t"+op+" "+operand);
 	}
 	void emitRR(String op, String rd, String rs) {
 		System.out.println("\t"+op+" "+rd+", "+rs);
@@ -29,7 +32,7 @@ public class CompilerBase {
 	void emitJMP(String op, String Label) {
 		System.out.println("\t"+op+" "+Label);
 	}
-	
+
 	void emitLDC(String rd, int val) {
 		System.out.println("\tldr "+rd+", =#"+val);
 	}
@@ -58,7 +61,7 @@ public class CompilerBase {
 	void emitLabel(String label) {
 		System.out.println(label+":");
 	}
-	
+
 	/* 環境 */
 	static class Variable {
 		String name;
@@ -74,7 +77,7 @@ public class CompilerBase {
 			this.offset = offset;
 		}
 	}
-	
+
 	static class GlobalVariable extends Variable {
 		GlobalVariable(String name) {
 			super(name);
