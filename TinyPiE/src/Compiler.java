@@ -33,10 +33,10 @@ public class Compiler extends CompilerBase {
 		} else if (ndx instanceof ASTUnaryExprNode) {
 			ASTUnaryExprNode nd = (ASTUnaryExprNode) ndx;
 			compileExpr(nd.operand, env);
-
 			emitR("not", REG_DST);
 			if (nd.op.equals("-"))
 				emitRRI("add", REG_DST, REG_DST, 1);
+
 		  } else if (ndx instanceof ASTNumberNode) {
 		    ASTNumberNode nd = (ASTNumberNode) ndx;
 		    emitLDC(REG_DST, nd.value);
