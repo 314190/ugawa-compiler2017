@@ -24,7 +24,7 @@ public class Compiler extends CompilerBase {
 		    else if (nd.op.equals("/"))
 		      emitRRR("udiv", REG_DST, REG_R1, REG_DST);
 		    else if (nd.op.equals("|"))
-			  emitRRR("or", REG_DST, REG_R1, REG_DST);
+			  emitRR("or", REG_DST, REG_R1);
 		    else if (nd.op.equals("&"))
 			  emitRRR("and", REG_DST, REG_R1, REG_DST);
 		    else
@@ -32,11 +32,11 @@ public class Compiler extends CompilerBase {
 		    emitPOP(REG_R1);
 		} else if (ndx instanceof ASTUnaryExprNode) {
 			ASTUnaryExprNode nd = (ASTUnaryExprNode) ndx;
+			compileExpr(nd.operand, env);
 
-				emitRR("not", REG_R1, REG_DST);
-				if (nd.op.equals("-"))
-					emitRRI("add", REG_DST, REG_R1, 1);
-
+			emitR("not", REG_DST);
+			if (nd.op.equals("-"))
+				emitRRI("add", REG_DST, REG_DST, 1);
 		  } else if (ndx instanceof ASTNumberNode) {
 		    ASTNumberNode nd = (ASTNumberNode) ndx;
 		    emitLDC(REG_DST, nd.value);
@@ -54,6 +54,7 @@ public class Compiler extends CompilerBase {
 		  } else
 		    throw new Error("Unknown expression: "+ndx);
 	}
+
 
 	void compile(ASTNode ast) {
 		Environment env = new Environment();
