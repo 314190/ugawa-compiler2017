@@ -34,11 +34,35 @@ public class Compiler extends CompilerBase {
 		  } else if (ndx instanceof ASTPrintStmtNode) {
 			  ASTPrintStmtNode nd = (ASTPrintStmtNode) ndx;
 			  compileExpr(nd.expr, env);
-
-			  emitRI("mov", REG_DST, 4);
-			  emitRI("mov", REG_R1, 1);
-
-
+			  String writeLabel = freshLabel();
+			  emitPUSH(REG_R1);
+			  emitRR("mov", REG_R1, REG_DST);
+			  emitPUSH(REG_DST);
+			  emitRI("mov", REG_DST, 0);
+			  emitLDC( REG_FP, 16);
+			  emitLDC(REG_SP, "msg+nchar-4");
+			  emitLabel(writeLabel);
+			  emitRRR("udiv", REG_DST, REG_R1, REG_FP);
+			  emitRRR("mul", 	REG_R2, REG_FP, REG_DST);
+			  emitRRR("sub", REG_LR, REG_R1, REG_R2);
+			  emitRI("cmp", REG_LR, 10);
+			  emitRRI("addpl", REG_LR, REG_LR, 39);
+			  emitRRR("add", REG_LR, REG_LR, "#'0'");
+			  emitRR("str", REG_LR, "["+REG_SP+"]");
+			  emitRRI("sub", REG_SP, REG_SP, 4);
+			  emitRR("mov", REG_R1, REG_DST);
+			  emitRI("cmp", REG_R1, 0);
+			  emitJMP("bne", writeLabel);
+			  System.out.println("@ writeシステムコール");
+			  emitRR("mov", REG_DST, REG_SP);
+			  emitRI("mov", REG_R7, 4); //writeシステムコール
+			  emitRI("mov", REG_DST, 1);
+			  emitLDC(REG_R1, "msg");
+			  emitLDC(REG_R2, "nchar"+"+1");
+			  emitI("swi", 0);
+			  emitPOP(REG_R1);
+			  emitPOP(REG_DST);
+			  
 		  } else if (ndx instanceof ASTIfStmtNode) {
 		    ASTIfStmtNode nd = (ASTIfStmtNode) ndx;
 		    String elseLabel = freshLabel();
@@ -54,7 +78,7 @@ public class Compiler extends CompilerBase {
 		  } else if (ndx instanceof ASTWhileStmtNode) {
 		    ASTWhileStmtNode nd = (ASTWhileStmtNode) ndx;
 		    String whileLabel = freshLabel();
-
+		    emitLabel(whileLabel);
 		    compileStmt(nd.cond, env);
 		    emitRI("cmp", REG_DST, 0);
 		    emitJMP("beq", whileLabel);
@@ -130,6 +154,7 @@ public class Compiler extends CompilerBase {
 		  }
 		  System.out.println("\t.section .text");
 		System.out.println("\t.global _start");
+		System.out.println("\t.equ \t nchar, 40");
 		System.out.println("_start:");
 		System.out.println("\t@ 式をコンパイルした命令列");
 		compileStmt(prog.stmt, env);
@@ -138,7 +163,12 @@ public class Compiler extends CompilerBase {
 		emitLDC(REG_DST, v.getLabel()); // 変数 answer の値を r0 (終了コード) に入れる
 		emitLDR("r0", REG_DST, 0);
 		emitRI("mov", "r7", 1); // EXIT のシステムコール番号
-		  emitI("swi", 0);
+		emitI("swi", 0);
+		
+		System.out.println("\n\t.section .data"); //  文字の出力
+		System.out.println("msg:");
+		System.out.println("\t.space nchar");
+		System.out.println("\t.ascii "+ "\"\\n\"");
 		}
 
 	public static void main(String[] args) throws IOException {
